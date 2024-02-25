@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      target: runtime
+    ports:
+      - 8080:8080
+
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "./rules.yml:/etc/prometheus/rules.yml"
+    ports:
+      - 9090:9090
+
+  node-exporter:
+    image: prom/node-exporter
+    ports:
+      - 9100:9100
+
+  alert-manager:
+    image: prom/alertmanager
+    volumes:
+      - "./alertmanager.yml:/alertmanager/alertmanager.yml"
+    ports:
+      - 9093:9093
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ./grafana/my_go_app.yaml:/etc/grafana/provisioning/dashboards/my_go_app.yaml
+      - grafana-storage:/var/lib/grafana
+
+volumes:
+  grafana-storage:
